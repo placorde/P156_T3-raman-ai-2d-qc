@@ -12,8 +12,10 @@ ouvertes jusqu'à un démonstrateur de prédiction, afin d'évaluer rapidement l
 structure et la qualité de ces matériaux avant leur intégration dans des dispositifs
 électroniques (capteurs, transistors, photodétecteurs, électronique flexible).
 
-Voir [docs/sujet_projet.md](docs/sujet_projet.md) pour l'énoncé complet et
-[docs/cahier_des_charges.md](docs/cahier_des_charges.md) pour le document de cadrage.
+Voir [docs/sujet_projet.md](docs/sujet_projet.md) pour l'énoncé complet,
+[docs/cahier_des_charges.md](docs/cahier_des_charges.md) pour le document de cadrage, et
+[docs/literature_review.md](docs/literature_review.md) pour la revue de littérature initiale
+(physique Raman, jeux de données, état de l'art ML/DL).
 
 ## Contenu du projet
 

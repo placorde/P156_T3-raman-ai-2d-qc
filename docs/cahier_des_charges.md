@@ -56,6 +56,16 @@ seulement une preuve de concept en notebook.
   jalons intermédiaires) ?
 - Disponibilité de la partenaire pour des points d'avancement réguliers (fréquence,
   canal de communication) ?
+- A-t-elle une préférence entre s'appuyer sur des spectres *ab initio* simulés (ex. base C2DB,
+  733 monocouches) en complément des données réelles, ou veut-elle qu'on reste strictement sur
+  données expérimentales ouvertes ?
+- Le régime de densité de défauts visé pour l'indicateur qualité est-il plutôt faible/modéré
+  (où I(D)/I(G) croît de façon monotone) ou doit-on couvrir aussi le régime fortement désordonné
+  (où ce ratio redescend) ?
+- Accepte-t-elle qu'on s'appuie sur des bibliothèques existantes (RamanSPy, RamPy) pour le
+  prétraitement standard, ou attend-elle une implémentation "from scratch" à but pédagogique ?
+
+*(questions issues d'une première revue de littérature, voir [`literature_review.md`](literature_review.md))*
 
 ## 4. Organisation de l'équipe (P156_T3)
 
