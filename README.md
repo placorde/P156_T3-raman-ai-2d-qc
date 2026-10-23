@@ -51,10 +51,13 @@ app/            application web (démonstrateur)
 
 ## Équipe — P156_T3
 
-| Nom | Rôle |
-|---|---|
-| Pierre-Louis Lacorde | à compléter |
-| ... | ... |
+| Nom | GitHub | Rôle |
+|---|---|---|
+| Pierre-Louis Lacorde | [@placorde](https://github.com/placorde) | à compléter |
+| ... | [@meriambmd](https://github.com/meriambmd) | à compléter |
+| ... | [@TazBrks](https://github.com/TazBrks) | à compléter |
+| ... | [@manalhdev](https://github.com/manalhdev) | à compléter |
+| ... | [@Samiaarhab](https://github.com/Samiaarhab) | à compléter |
 
 ## Installation
 
