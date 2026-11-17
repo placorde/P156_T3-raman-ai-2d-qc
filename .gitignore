@@ -13,6 +13,7 @@ Thumbs.db
 # Data (keep example spectra tracked, ignore large/raw dumps)
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/materials_cloud_2024.148/
 data/processed/*
 !data/processed/.gitkeep
 

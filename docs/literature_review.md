@@ -141,6 +141,82 @@ une option, c'est une nécessité pour ce projet, quel que soit le dataset de d�
 - [Cao et al., From Data to Discovery: ML-Enabled Intelligent Characterization of 2D Materials (Advanced Intelligent Discovery, 2025)](https://advanced.onlinelibrary.wiley.com/doi/10.1002/aidi.70145)
 - [Qi et al., version ScienceDirect](https://www.sciencedirect.com/science/article/pii/S235294072400444X) / [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4930953)
 
+## 11. Materials Project, Materials Cloud et la Computational Raman Database (suite recherche 2026-11-17)
+
+À la demande de l'équipe, exploration de [Materials Project](https://next-gen.materialsproject.org/)
+et [Materials Cloud](https://www.materialscloud.org/), à partir de liens partagés par l'équipe.
+
+### Materials Project (MP)
+
+Base de données de propriétés de matériaux calculées par DFT (Lawrence Berkeley National
+Lab) — structures cristallines, bandes électroniques, propriétés élastiques/piézoélectriques/
+diélectriques, phonons, pour des centaines de milliers de composés. **Accès direct au site
+bloqué pour nous ici** (protection anti-robot Cloudflare — je n'ai pas essayé de la contourner,
+c'est hors limites). Pour une extraction de données réelle, il faut : créer un compte gratuit
+sur [materialsproject.org](https://next-gen.materialsproject.org/), récupérer une clé API
+personnelle, puis utiliser le client Python officiel `mp-api`
+([doc](https://docs.materialsproject.org/downloading-data/how-do-i-download-the-materials-project-database)).
+**MP n'héberge pas directement de spectres Raman** pour la plupart des matériaux — c'est surtout
+un système d'identifiants (`mp-id`) et de propriétés de structure/électronique sur lequel
+d'autres bases Raman (ci-dessous) s'appuient. Filtrer par dimensionnalité (pour isoler les
+matériaux 2D) est possible via l'API mais pas encore un filtre de premier niveau d'après un fil
+de discussion de la communauté ([matsci.org](https://matsci.org/t/how-to-get-the-2d-material-data-of-material-project/47828)).
+
+### Computational Raman Database (CRD) — [ramandb.oulu.fi](https://ramandb.oulu.fi/)
+
+Base dédiée aux spectres Raman *calculés* (plus de 5000 spectres, semi-conducteurs et
+isolants), construite sur la Phonon Database d'Atsushi Togo avec un pré-criblage via
+Materials Project — **recherche possible directement par `mp-id` et par dimensionnalité**,
+donc un bon pont entre MP et des données Raman exploitables. Chaque fiche matériau donne le
+spectre Raman/IR interactif et le tenseur Raman brut. CC BY 4.0, code source sur GitHub
+(`ramandb`) et toolkit Python `CoRaPy`. Référence : Bagheri & Komsa, *Scientific Data* (2023).
+Pas de téléchargement en masse documenté sur la page — à creuser matériau par matériau ou via
+le repo GitHub si besoin d'un accès programmatique.
+
+### Materials Cloud — Archive 2024.148 ★ (le plus directement exploitable)
+
+[Li, Gao, Xie et al., *High-throughput computation of ab initio Raman spectra for
+two-dimensional materials*](https://doi.org/10.24435/materialscloud:bq-vp), Materials Cloud
+Archive, 2024. **3 504 matériaux 2D**, spectres Raman calculés en DFPT all-electron
+(code FHI-aims) — **presque 5× plus large que C2DB** (733 matériaux, trouvé en v0.1). CC BY
+4.0, 4,2 Mo seulement pour tout le dataset.
+
+**Téléchargé et inspecté concrètement** (voir [data/raw/materials_cloud_2024.148/](../data/raw/materials_cloud_2024.148/)
+dans ce dépôt, qui contient un sous-ensemble curé de 14 matériaux correspondant exactement à
+ceux du sujet — C, BN, MoS₂, WS₂, MoSe₂, WSe₂, plusieurs polymorphes chacun) :
+- Format par matériau : `geometry.in` (structure FHI-aims), `POSCAR` (structure VASP),
+  `raman.dat` (2 colonnes : fréquence en cm⁻¹, intensité en Å⁴/amu).
+- Vérification physique faite sur `2192_MoS2` (1 Mo + 2 S = 3 atomes) : `raman.dat` contient
+  exactement 9 lignes = 3N modes, ce qui confirme très concrètement la règle "maille de N
+  atomes → 3N modes" du guide Raman (Question 28).
+- Attention : le dossier `1849_C` a 8 atomes de carbone avec des coordonnées z différentes —
+  ce n'est **pas** une monocouche de graphène simple. Il faudra trier les polymorphes
+  (monocouche vs bicouche vs graphite, phase H vs T pour les TMDs) avant utilisation — détaillé
+  dans le README du dossier de données.
+
+→ **C'est la meilleure source "ab initio" trouvée jusqu'ici pour ce projet** : plus large que
+C2DB, format plus simple (texte brut à 2 colonnes), et couvre exactement les matériaux visés
+par le sujet avec plusieurs variantes par formule.
+
+### Zenodo 17311728 — donnée expérimentale complémentaire
+
+[*Twisted MoS₂ Bilayers as Functional Elements in Memtransistors*](https://zenodo.org/records/17311728)
+— données Raman + photoluminescence **réelles** (pas calculées) sur MoS₂ monocouche, bicouche
+2H et bicouche torsadée (twisted), sous contrainte électrique, avec données brutes et traitées,
+notebooks de traitement mentionnés (non liés directement sur la page). CC BY 4.0, 21,3 Mo.
+Utile comme **deuxième source expérimentale réelle** en plus des 594 spectres Qi et al. déjà
+identifiés, mais le sujet de l'étude (effet du twist angle et de la tension électrique) est
+différent de notre besoin (identification matériau + qualité) — à utiliser pour des spectres
+MoS₂ "propres" de référence plutôt que pour l'indicateur de défauts.
+
+### Lien arXiv fourni, non exploré
+
+Le lien `arxiv.org/login?next_page=/submit/3160521/start` pointe vers une page de connexion
+pour une **soumission arXiv privée** (brouillon en cours, identifiant 3160521) — ça nécessite
+de se connecter à un compte personnel, donc je n'ai pas essayé d'y accéder (page privée, pas
+une publication publique). Si ce lien devait pointer vers un article ou un dataset précis,
+peux-tu redonner le lien final (après connexion) ou le DOI/arXiv ID une fois soumis ?
+
 ## 10. Sources — v0.1
 
 - [A library of ab initio Raman spectra for automated identification of 2D materials (Nature Comms, 2020)](https://www.nature.com/articles/s41467-020-16529-6)
