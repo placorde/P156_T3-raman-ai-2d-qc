@@ -1,9 +1,11 @@
-# Literature review — v0.1 (recherche bibliographique initiale)
+# Literature review — v0.2 (recherche bibliographique)
 
-> Premier passage "chercheur" sur le sujet, avant le kick-off avec la partenaire. Objectif :
-> identifier la physique de base, les jeux de données exploitables et l'état de l'art
-> ML/DL, pour arriver au rendez-vous avec des choix techniques argumentés plutôt que des
-> questions ouvertes.
+> v0.1 (2026-10-06) : premier passage "chercheur" avant le kick-off partenaire — physique de
+> base, datasets, état de l'art ML/DL.
+> v0.2 (2026-11-17) : deuxième passage, ciblé sur le **code open-source réutilisable** et les
+> **datasets supplémentaires** (sections 7-9). Voir aussi le statut du kick-off : au
+> 2026-11-17, rien n'indique qu'il ait eu lieu (toujours en attente de confirmation côté
+> équipe).
 
 ## 1. Physique : ce que dit un spectre Raman
 
@@ -96,7 +98,50 @@ indicateur de qualité, pipeline de classification).
 - Accepte-t-elle qu'on s'appuie sur RamanSPy/RamPy pour le prétraitement standard, ou attend-elle
   une implémentation "from scratch" des étapes de prétraitement pour des raisons pédagogiques ?
 
-## 6. Sources
+## 7. Code open-source directement réutilisable (repos GitHub, recherche 2026-11-17)
+
+| Repo | Ce qu'il fait | Données | Licence | État |
+|---|---|---|---|---|
+| [Surjyasish/Raman-mapping-graphene](https://github.com/Surjyasish/Raman-mapping-graphene) | Pipeline complet graphène/graphite : stitching, correction de ligne de base (ALS), fitting Lorentzien des bandes D/G/D′/2D/D+G, features I(D)/I(G) et I(2D)/I(G), clustering PCA+k-means, **CNN 1D avec split spatial** (pas aléatoire — argument pédagogique à reprendre), interprétabilité Grad-CAM. | Carte 27×35 µm (945 pixels) décrite dans le README mais **fichiers de données non inclus dans le repo**. | Apache-2.0 | 16 commits, 0 star/fork — pas de communauté, mais c'est **le plus proche structurellement de ce que demande le sujet** (points 1, 2, 3, 6 à la fois). À lire comme référence d'architecture plutôt qu'à exécuter tel quel. |
+| [asineesh/Benchmark_Raman_DeepLearning](https://github.com/asineesh/Benchmark_Raman_DeepLearning) | Benchmark PyTorch rigoureux : SVM/Random Forest vs Deep CNN/SANet/RamanNet/Transformer/RamanFormer, même protocole d'entraînement/évaluation pour tous. | 3 datasets déjà scriptés (MLROD via odr.io, Bacteria-ID via GitHub, API pharma via Figshare) — **aucun n'est un matériau 2D**, mais la structure du code (tuning → multi-run → évaluation accuracy/F1) est directement réutilisable pour comparer nos propres modèles. | MIT | Bien structuré, poids/logs archivés sur Zenodo. Bon modèle de **méthodologie de comparaison** pour le point 4 du sujet. |
+| [Naduhi/Raman_DL](https://github.com/Naduhi/Raman_DL) | Cité comme dépôt de code de l'article DDPM-CNN (arXiv:2312.01389, le papier le plus proche du sujet). | — | — | **Lien mort / 404 au 2026-11-17** — à retenter plus tard ou à contacter les auteurs directement si on veut leur code. |
+| [ml-lab-htw/raman_data](https://github.com/ml-lab-htw/raman_data) | Librairie Python unifiée de chargement de **93 datasets Raman** publics (classification, régression, débruitage, super-résolution), agrégés depuis Kaggle/HuggingFace/Zenodo/Figshare/Mendeley/GitHub. | Aucun matériau 2D listé pour l'instant (voir §8), mais pratique pour explorer/charger rapidement d'autres jeux Raman si besoin de données de pré-entraînement généralistes. | Vérifier par dataset | Lié au papier RamanBench (§8) ; aussi sur PyPI (`pip install raman-data`). |
+
+→ **Aucun repo trouvé n'est un pipeline "clé en main" prêt à l'emploi pour le sujet exact**
+(classification de matériaux 2D + indicateur qualité). Le plus utile reste
+`Surjyasish/Raman-mapping-graphene` comme **modèle d'architecture** (features physiques +
+CNN + interprétabilité), à adapter avec nos propres données plutôt qu'à cloner tel quel.
+
+## 8. Datasets supplémentaires identifiés (recherche 2026-11-17)
+
+| Source | Type | Contenu | Accès |
+|---|---|---|---|
+| [raman-data (PyPI)](https://pypi.org/project/raman-data/) + [RamanBench (arXiv:2605.02003)](https://arxiv.org/html/2605.02003v2) | Benchmark agrégateur | 74 datasets / 325 000+ spectres au total, mais seulement **4 en "Material Science"** : MLROD (minéraux Mars), RRUFF (minéraux), pigments organiques synthétiques, microplastiques altérés — **aucun n'est un matériau 2D**. | `pip install raman-data` / `raman-bench` ; leaderboard public sur [HuggingFace Spaces](https://huggingface.co/spaces/HTW-KI-Werkstatt/RamanBench) |
+| [RamanSPy — datasets intégrés](https://ramanspy.readthedocs.io/en/latest/datasets.html) | Chargeurs prêts à l'emploi | Bactéries, cellules, COVID-19, adénine, blé, et **RRUFF (minéraux)** — aucun matériau 2D non plus, mais utile si on veut tester notre pipeline de prétraitement sur un jeu "neutre" avant de l'appliquer à nos propres spectres. | Intégré à la lib (`rp.datasets.*`) |
+| [Malenfant-Thuot et al., *Large Scale Raman Spectrum Calculations in Defective 2D Materials using Deep Learning*, J. Phys.: Condens. Matter 37, 115903 (2025)](https://arxiv.org/abs/2410.20417) | **Simulé** (potentiels interatomiques appris + DFT) | Génère à grande échelle des spectres Raman de **h-BN défectueux** (3 à 8 atomes retirés par configuration) — méthodologiquement très proche du point 6 du sujet (indicateur de défauts), même si c'est du h-BN et pas du carbone. Pas de lien dataset/code confirmé dans les sources consultées — à vérifier directement dans l'article complet (data availability statement). | Papier accessible, dataset/code à confirmer |
+| [Cao et al., *From Data to Discovery: ML-Enabled Intelligent Characterization of 2D Materials*, Advanced Intelligent Discovery (2025)](https://advanced.onlinelibrary.wiley.com/doi/10.1002/aidi.70145) | Revue | Vue d'ensemble des méthodes ML pour caractériser des matériaux 2D (pas seulement Raman) — bon point d'entrée bibliographique pour le rapport, mais accès à vérifier (403 rencontré lors de la recherche, probablement paywall). | À vérifier (accès bibliothèque ESILV ?) |
+| [Qi et al. — version révisée/publiée, ScienceDirect](https://www.sciencedirect.com/science/article/pii/S235294072400444X) et [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4930953) | Expérimental + DDPM | Confirme les chiffres déjà notés en v0.1 : 594 spectres réels, 7 matériaux + 3 empilements, **CNN seul = 98,8%**, **DDPM+CNN = 100%**. Avoir les deux chiffres (pas juste le 100%) est plus honnête à citer dans notre propre rapport. | Preprint arXiv + versions éditeur |
+
+**Constat net après cette deuxième passe** : il n'existe **pas de dataset expérimental ouvert,
+volumineux et dédié aux matériaux 2D** comparable à ce qui existe pour d'autres domaines Raman
+(bactéries, minéraux...). Le jeu de 594 spectres (Qi et al.) reste la meilleure base
+expérimentale publique identifiée pour ce sujet précis ; le reste (C2DB, Zenodo MoS₂) sert à
+compléter. Ça renforce l'argument déjà noté en v0.1 : l'**augmentation de données** n'est pas
+une option, c'est une nécessité pour ce projet, quel que soit le dataset de départ choisi.
+
+## 9. Sources ajoutées en v0.2
+
+- [Surjyasish/Raman-mapping-graphene (GitHub)](https://github.com/Surjyasish/Raman-mapping-graphene)
+- [asineesh/Benchmark_Raman_DeepLearning (GitHub)](https://github.com/asineesh/Benchmark_Raman_DeepLearning)
+- [ml-lab-htw/raman_data (GitHub)](https://github.com/ml-lab-htw/raman_data) / [raman-data (PyPI)](https://pypi.org/project/raman-data/)
+- [RamanBench: A Large-Scale Benchmark for Machine Learning on Raman Spectroscopy (arXiv:2605.02003)](https://arxiv.org/html/2605.02003v2)
+- [RamanBench leaderboard (HuggingFace Spaces)](https://huggingface.co/spaces/HTW-KI-Werkstatt/RamanBench)
+- [RamanSPy — datasets intégrés](https://ramanspy.readthedocs.io/en/latest/datasets.html)
+- [Malenfant-Thuot et al., Large Scale Raman Spectrum Calculations in Defective 2D Materials using Deep Learning (arXiv:2410.20417)](https://arxiv.org/abs/2410.20417)
+- [Cao et al., From Data to Discovery: ML-Enabled Intelligent Characterization of 2D Materials (Advanced Intelligent Discovery, 2025)](https://advanced.onlinelibrary.wiley.com/doi/10.1002/aidi.70145)
+- [Qi et al., version ScienceDirect](https://www.sciencedirect.com/science/article/pii/S235294072400444X) / [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4930953)
+
+## 10. Sources — v0.1
 
 - [A library of ab initio Raman spectra for automated identification of 2D materials (Nature Comms, 2020)](https://www.nature.com/articles/s41467-020-16529-6)
 - [Deep Learning Assisted Raman Spectroscopy for Rapid Identification of 2D Materials (arXiv:2312.01389)](https://arxiv.org/pdf/2312.01389)
