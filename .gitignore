@@ -14,10 +14,12 @@ Thumbs.db
 data/raw/*
 !data/raw/.gitkeep
 !data/raw/materials_cloud_2024.148/
+!data/raw/zenodo_5866629_mos2_flakes/
 data/processed/*
 !data/processed/.gitkeep
 !data/processed/materials_cloud_2024.148_summary.csv
 !data/processed/materials_cloud_2024.148_plots/
+!data/processed/zenodo_5866629_plots/
 
 # Secrets / local config
 .env

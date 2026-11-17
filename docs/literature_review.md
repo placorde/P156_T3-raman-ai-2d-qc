@@ -215,16 +215,55 @@ ceux du sujet — C, BN, MoS₂, WS₂, MoSe₂, WSe₂, plusieurs polymorphes c
 C2DB, format plus simple (texte brut à 2 colonnes), et couvre exactement les matériaux visés
 par le sujet avec plusieurs variantes par formule.
 
-### Zenodo 17311728 — donnée expérimentale complémentaire
+### Zenodo 17311728 — donnée expérimentale réelle, mais format complexe
 
 [*Twisted MoS₂ Bilayers as Functional Elements in Memtransistors*](https://zenodo.org/records/17311728)
 — données Raman + photoluminescence **réelles** (pas calculées) sur MoS₂ monocouche, bicouche
-2H et bicouche torsadée (twisted), sous contrainte électrique, avec données brutes et traitées,
-notebooks de traitement mentionnés (non liés directement sur la page). CC BY 4.0, 21,3 Mo.
-Utile comme **deuxième source expérimentale réelle** en plus des 594 spectres Qi et al. déjà
-identifiés, mais le sujet de l'étude (effet du twist angle et de la tension électrique) est
-différent de notre besoin (identification matériau + qualité) — à utiliser pour des spectres
-MoS₂ "propres" de référence plutôt que pour l'indicateur de défauts.
+2H et bicouche torsadée (twisted), sous contrainte électrique. CC BY 4.0, 21,3 Mo.
+
+**Téléchargé et inspecté (2026-11-17)** : le dataset contient des cartes spatiales de mesures
+(position × position) plutôt que des spectres individuels simples — les fichiers CSV
+"traités" donnent une grandeur dérivée (ex. position de pic) par pixel de la carte, pas
+l'intensité en fonction du décalage Raman. Les spectres bruts complets sont dans des fichiers
+`.l6m` (format propriétaire Horiba LabSpec), qui nécessitent un lecteur spécifique (pas du
+texte brut). Le dossier `Scripts/` contient cependant un notebook `Raman_PL_mapping.ipynb`
+des auteurs — utile comme référence de méthode si on veut un jour lire ce format. **Verdict :
+dataset réel et intéressant, mais pas un "quick win"** comparé aux deux sources ci-dessous ;
+à garder en réserve plutôt qu'à prioriser maintenant.
+
+### Zenodo 5866629 — spectres expérimentaux simples, directement exploitables ★
+
+[*Raman and photoluminescence of MoS2 flakes and pyramids*](https://zenodo.org/records/5866629),
+CC BY 4.0, ~1,7 Mo. **Téléchargé et inspecté** (voir
+[data/raw/zenodo_5866629_mos2_flakes/](../data/raw/zenodo_5866629_mos2_flakes/)) : deux
+fichiers texte à 2 colonnes (décalage Raman, intensité), **spectres continus complets** (1014
+points, 51 à 1828 cm⁻¹) — contrairement à `materials_cloud_2024.148` qui ne donne que des
+positions de pics discrètes, ici on a un vrai signal avec bruit et fond de fluorescence,
+exactement ce qu'il faut pour tester le futur pipeline de prétraitement.
+
+En traçant les deux spectres (flocon monocouche vs pyramide) :
+- Les deux pics E¹₂g/A₁g attendus pour le MoS₂ apparaissent nettement vers 384 et
+  404 cm⁻¹ sur le flocon monocouche — écart ≈ 20 cm⁻¹, cohérent avec Lee et al. (2010) ;
+  légèrement plus écartés sur la pyramide (structure plus épaisse), comme attendu.
+- **Un pic net à ~520 cm⁻¹** apparaît sur les deux spectres — quasi certainement le pic de
+  calibration du substrat de silicium cité en Question 50 du guide Raman. **Première
+  illustration concrète, sur nos propres données, de la distinction pic matériau / pic
+  substrat.**
+
+→ Dataset prioritaire pour un premier prototype de prétraitement, dès qu'on passera à cette
+étape.
+
+### Correction importante : le dataset "594 spectres" (Qi et al.) n'est probablement pas public
+
+En cherchant activement le fichier de données de l'article le plus cité en v0.1
+(arXiv:2312.01389, 594 spectres expérimentaux + augmentation DDPM), **aucun lien de
+téléchargement n'a été trouvé**, et un article de benchmark 2025 (RSC Digital Discovery)
+indique explicitement que la version étendue de ce travail utilise un dataset qui n'a pas été
+rendu public. Le dépôt de code annoncé (`Naduhi/Raman_DL`) est également en 404. **Il ne faut
+donc plus compter sur ce dataset comme source directement récupérable** — au mieux, contacter
+les auteurs (groupe du Pr Jiang, Jiangsu Key Laboratory) directement. Ça renforce d'autant
+plus l'intérêt des deux sources Zenodo/Materials Cloud ci-dessus, qui elles sont vérifiées
+accessibles.
 
 ### Lien arXiv fourni, non exploré
 
