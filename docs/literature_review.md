@@ -193,6 +193,23 @@ ceux du sujet — C, BN, MoS₂, WS₂, MoSe₂, WSe₂, plusieurs polymorphes c
   ce n'est **pas** une monocouche de graphène simple. Il faudra trier les polymorphes
   (monocouche vs bicouche vs graphite, phase H vs T pour les TMDs) avant utilisation — détaillé
   dans le README du dossier de données.
+- **Mise à jour (même jour)** : polymorphes triés avec `src/explore_materials_cloud_sample.py`
+  (compte d'atomes + clustering des coordonnées z) — `577_C` et `1_BN` sont bien des
+  monocouches simples (2 atomes), les paires MoS₂/WS₂/MoSe₂/WSe₂ donnent chacune une
+  monocouche (3 atomes) et une bicouche (6 atomes) propres. Détail complet et CSV dans
+  `data/raw/materials_cloud_2024.148/README.md`.
+- **Découverte importante** : le spectre calculé du graphène monocouche ne montre **qu'un
+  seul pic fort (~1443 cm⁻¹, le mode de type G)** — ni bande D, ni bande 2D. C'est attendu :
+  ce sont des calculs **au point Γ sur un cristal parfait**, donc aucune bande activée par le
+  désordre (D) ni aucun processus du second ordre (2D, qui implique des phonons hors Γ). **Ce
+  type de dataset ab initio convient à l'identification de matériau (item 3) mais ne suffit
+  pas seul pour l'indicateur de qualité/défauts D/G/2D (item 6)** — il faudra des données
+  expérimentales ou des calculs dédiés sur des structures défectueuses pour ce dernier point.
+- Comparaison chiffrée DFT vs expérience (voir README du dossier de données pour le détail) :
+  G du graphène ~1443 cm⁻¹ calculé vs ~1580 cm⁻¹ expérimental (Ferrari & Basko, 2013), A₁g du
+  MoS₂ ~396,5 cm⁻¹ calculé vs ~403 cm⁻¹ expérimental (Lee et al., 2010) — décalage systématique
+  d'environ 1 à 9% vers le bas, effet DFT harmonique connu, à garder en tête si ce dataset sert
+  à l'entraînement (risque de mauvaise généralisation sur données réelles sans recalibration).
 
 → **C'est la meilleure source "ab initio" trouvée jusqu'ici pour ce projet** : plus large que
 C2DB, format plus simple (texte brut à 2 colonnes), et couvre exactement les matériaux visés

@@ -16,6 +16,8 @@ data/raw/*
 !data/raw/materials_cloud_2024.148/
 data/processed/*
 !data/processed/.gitkeep
+!data/processed/materials_cloud_2024.148_summary.csv
+!data/processed/materials_cloud_2024.148_plots/
 
 # Secrets / local config
 .env

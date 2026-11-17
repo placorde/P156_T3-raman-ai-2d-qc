@@ -32,25 +32,71 @@ ci-dessus si besoin d'élargir au-delà de ces 14 exemples.
   Raman : phonons acoustiques vs optiques) — ce ne sont pas des pics Raman réels, à filtrer
   avant tout entraînement.
 
-## Vérifications faites en l'inspectant (2026-11-17)
+## Identification des polymorphes (faite le 2026-11-17 avec `src/explore_materials_cloud_sample.py`)
 
-- `2192_MoS2` a bien 1 Mo + 2 S (3 atomes) → `raman.dat` contient exactement 9 lignes = 3N
-  modes (confirme la Question 28 du guide Raman : maille de N atomes → 3N modes).
-- `1849_C` a 8 atomes de carbone dans la maille, avec des coordonnées z différentes par
-  atome → ce n'est **pas** une monocouche de graphène simple (2 atomes), mais un empilement
-  multicouche ou un polymorphe particulier. **À vérifier avant utilisation** : comparer les
-  3 dossiers `C` entre eux (nombre d'atomes, coordonnées) pour identifier lequel est le
-  graphène monocouche pur, lequel est bicouche/graphite, etc. Idem à vérifier pour les 3
-  dossiers `BN` et les paires `MoS2`/`WS2`/`MoSe2`/`WSe2` (polymorphes H vs T, nombre de
-  couches).
+Script exécuté sur les 14 dossiers : lecture du `POSCAR` (nombre d'atomes, longueur de l'axe
+c, clustering des coordonnées z pour détecter le nombre de plans atomiques distincts) +
+lecture du `raman.dat` (modes acoustiques proches de 0 cm⁻¹ filtrés). Résultat complet dans
+[`data/processed/materials_cloud_2024.148_summary.csv`](../../processed/materials_cloud_2024.148_summary.csv)
+et un graphe par matériau dans
+[`data/processed/materials_cloud_2024.148_plots/`](../../processed/materials_cloud_2024.148_plots/).
+
+| Dossier | Atomes | Interprétation |
+|---|---|---|
+| `577_C` | 2 | **Graphène monocouche** (confirmé : 2 atomes de C, 1 seul plan z) |
+| `543_C`, `1849_C` | 8 | Bicouche (ou super-cellule), **pas** une monocouche — 2 plans z détectés |
+| `1_BN` | 2 | **h-BN monocouche** (même structure que le graphène monocouche) |
+| `83_BN` | 8 | Super-cellule plane de h-BN (1 seul plan z malgré 8 atomes — probablement une
+  cellule 2×2 d'une monocouche, intéressant comme base pour simuler des **défauts**, cf. item 6 du sujet) |
+| `3278_BN` | 4 | Structure à 3 plans z — à vérifier plus en détail, pas une monocouche simple |
+| `2192_MoS2`, `168_MoSe2`, `1348_WS2`, `291_WSe2` | 3 | **Monocouche TMD** (1 métal + 2 chalcogènes = le "sandwich" X-M-X d'une seule couche ; les "3 plans z" détectés sont les 3 plans de l'empilement S-Mo-S *dans la même monocouche*, pas 3 couches empilées) |
+| `3103_MoS2`, `2398_MoSe2`, `2884_WS2`, `2453_WSe2` | 6 | **Bicouche TMD** (exactement le double — 2 métaux + 4 chalcogènes) |
+
+→ Pour les TMDs, chaque paire (3 atomes / 6 atomes) donne directement monocouche / bicouche —
+propre et exploitable tel quel. Pour C et BN, seuls `577_C` et `1_BN` sont des monocouches
+simples ; les autres dossiers sont des structures plus complexes à ne pas utiliser comme
+"graphène" ou "h-BN" de référence sans vérification supplémentaire.
+
+## Découverte importante pour l'item 6 du sujet (indicateur de défauts)
+
+En traçant `577_C` (graphène monocouche), **un seul pic Raman fort apparaît (~1443 cm⁻¹)** —
+pas de bande D, pas de bande 2D. C'est normal et attendu, pas une erreur : ce dataset calcule
+les modes **au point Γ** (centre de la zone de Brillouin) d'un cristal **parfait**. Or :
+- la bande **D** n'existe que si le cristal a un défaut (elle est "activée par le désordre",
+  cf. Question 20-21 du guide Raman) — ces structures sont des cristaux parfaits, donc pas de
+  bande D ;
+- la bande **2D** est un processus Raman du **second ordre** impliquant des phonons loin du
+  point Γ (double résonance) — un calcul DFPT standard au point Γ ne la capture pas.
+
+**Conséquence concrète pour le projet** : ce dataset (et plus généralement les bases "ab
+initio Γ-point" comme C2DB) est excellent pour l'**identification de matériau** (item 3) mais
+**ne suffit pas seul** pour l'indicateur de qualité/défauts basé sur D/G/2D (item 6) — il
+faudra soit des données expérimentales réelles (qui ont ces bandes), soit des calculs dédiés
+sur des super-cellules avec défauts (voir la piste `83_BN`, super-cellule plane, et le papier
+Malenfant-Thuot et al. 2025 cité dans `docs/literature_review.md` §11, qui simule justement du
+h-BN défectueux).
+
+## Comparaison DFT ↔ expérience (premier repère chiffré)
+
+| Matériau | Mode | Position calculée ici | Position expérimentale connue | Écart |
+|---|---|---|---|---|
+| Graphène monocouche (`577_C`) | G | ~1443 cm⁻¹ | ~1580 cm⁻¹ (Ferrari & Basko, 2013) | ~−9% |
+| MoS₂ monocouche (`2192_MoS2`) | A₁g | ~396,5 cm⁻¹ | ~403 cm⁻¹ (Lee et al., 2010) | ~−1,6% |
+| MoS₂ monocouche (`2192_MoS2`) | E¹₂g | ~362 cm⁻¹ (pic le plus proche) | ~384,5 cm⁻¹ (Lee et al., 2010) | ~−6% |
+
+Le décalage systématique vers le bas est un effet DFT connu (pas d'anharmonicité/température
+incluse dans un calcul harmonique standard) — **à mentionner explicitement dans le rapport**
+si ce dataset sert à l'entraînement : un modèle entraîné uniquement sur ces positions
+calculées risque de mal généraliser sur des spectres expérimentaux sans recalibration.
 
 ## Ce qu'il reste à faire avec ces données
 
-1. Identifier précisément quel dossier correspond à quelle structure exacte (via `POSCAR` /
-   nombre d'atomes / c-axis) plutôt que de supposer "C = graphène".
-2. Écrire un petit script de chargement qui lit `raman.dat`, filtre les modes acoustiques
-   proches de 0, et convertit vers le même format que les autres sources (594 spectres
-   expérimentaux, Zenodo MoS₂) pour pouvoir les combiner dans `src/`.
-3. Comparer un spectre calculé ici à un spectre expérimental connu (ex. Lee et al. 2010 pour
-   MoS₂, voir `docs/raman_guide` / Figure 4) pour avoir une première idée de l'écart
-   simulation/expérience.
+1. ~~Identifier précisément quel dossier correspond à quelle structure exacte~~ → fait
+   ci-dessus pour les 14 exemples ; à refaire si on élargit au dataset complet (3 504
+   matériaux).
+2. Décider comment gérer l'écart DFT/expérience ci-dessus (recalibration simple par décalage
+   constant ? entraînement mixte simulé+réel ? à trancher avec la partenaire).
+3. Pour l'indicateur qualité (item 6), chercher/générer des spectres avec défauts réels
+   (expérimentaux, ou super-cellules dédiées) plutôt que de compter sur ce dataset seul.
+4. Comparer un spectre calculé ici à un spectre expérimental complet (ex. Figure 4 du guide
+   Raman, Lee et al. 2010) sur toute la gamme, pas juste les positions de pics.
